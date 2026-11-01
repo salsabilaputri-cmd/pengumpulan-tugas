@@ -13,24 +13,20 @@
 
   <!-- NAVBAR & PROFILE HEADER -->
   <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-50">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
       <div>
         <h1 class="text-xl font-bold tracking-wide">PORTAL AKADEMIK NO. 4</h1>
         <p class="text-xs text-indigo-200">Pengumpulan Tugas & Upload Materi Kuliah</p>
       </div>
-      <div class="flex items-center gap-3">
-        <!-- TOMBOL ADMIN TERPERBAIKI (BISA DIKLIK) -->
-        <button type="button" id="adminBtn" onclick="toggleAdminMode()" class="bg-indigo-800 hover:bg-indigo-900 active:bg-indigo-950 text-white px-4 py-2 rounded-full text-xs font-semibold shadow flex items-center gap-2 transition-all cursor-pointer">
-          <i class="fa-solid fa-user-gear"></i>
-          <span id="adminText">Mode Pengunjung</span>
-        </button>
-      </div>
+      <span class="bg-indigo-800 text-xs px-3 py-1 rounded-full text-indigo-100 font-semibold">
+        <i class="fa-solid fa-user-check mr-1"></i> Mode Admin Aktif
+      </span>
     </div>
   </header>
 
   <main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
 
-    <!-- DASHBOARD IDENTITAS -->
+    <!-- DASHBOARD IDENTITAS MAHASISWA -->
     <section class="bg-white rounded-xl p-6 shadow-md border-l-8 border-indigo-600">
       <h2 class="text-sm font-semibold text-indigo-600 uppercase tracking-wider mb-4">
         <i class="fa-solid fa-id-card mr-2"></i>Data Mahasiswa
@@ -55,11 +51,11 @@
       </div>
     </section>
 
-    <!-- ADMIN PANEL: FORM UPLOAD (MUNCUL DI MODE ADMIN) -->
-    <section id="adminFormSection" class="hidden bg-white rounded-xl p-6 shadow-md border border-indigo-100">
+    <!-- FORM UPLOAD (LANGSUNG TAMPIL DENGAN KETENTUAN PENGUMPULAN) -->
+    <section class="bg-white rounded-xl p-6 shadow-md border border-indigo-100">
       <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
         <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i>
-        <span id="formTitle">Upload Data Baru</span>
+        <span id="formTitle">Upload Tugas / Materi Baru</span>
       </h2>
 
       <form id="uploadForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
@@ -75,7 +71,7 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tugas / Materi</label>
-            <input type="text" id="itemTitle" placeholder="Contoh: Tugas 4 - Pemrograman Web / Modul 2" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <input type="text" id="itemTitle" placeholder="Contoh: Tugas 1, Tugas 2, Modul 4..." required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
           </div>
         </div>
 
@@ -88,15 +84,14 @@
         <div class="flex gap-2 justify-end pt-2">
           <button type="button" onclick="resetForm()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300">Batal / Reset</button>
           <button type="submit" id="btnSubmit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 flex items-center gap-2">
-            <i class="fa-solid fa-save"></i> Simpan ke Supabase
+            <i class="fa-solid fa-paper-plane"></i> Simpan & Kirim
           </button>
         </div>
       </form>
     </section>
 
-    <!-- LIST DATA TUGAS & MATERI -->
+    <!-- LIST DAFTAR TUGAS DAN MATERI -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
       <!-- KOLOM TUGAS -->
       <section class="bg-white rounded-xl p-6 shadow-md border border-slate-100">
         <h2 class="text-base font-bold text-slate-800 mb-4 pb-2 border-b border-slate-200 flex justify-between items-center">
@@ -104,7 +99,7 @@
           <span id="countTugas" class="bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full">0</span>
         </h2>
         <div id="listTugas" class="space-y-3">
-          <p class="text-xs text-slate-400 text-center py-4">Memuat data dari Supabase...</p>
+          <p class="text-xs text-slate-400 text-center py-4">Memuat data...</p>
         </div>
       </section>
 
@@ -115,51 +110,25 @@
           <span id="countMateri" class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">0</span>
         </h2>
         <div id="listMateri" class="space-y-3">
-          <p class="text-xs text-slate-400 text-center py-4">Memuat data dari Supabase...</p>
+          <p class="text-xs text-slate-400 text-center py-4">Memuat data...</p>
         </div>
       </section>
-
     </div>
+
   </main>
 
-  <!-- JAVASCRIPT AUTOMATIC SUPABASE INTEGRATION -->
   <script>
     const SUPABASE_URL = "https://vrlkwwkemsfeuypvrvcr.supabase.co"; 
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZybGt3d2tlbXNmZXV5dnZydmNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDU1NjMsImV4cCI6MjEwOTEyMTU2M30.J6EPaVRZLVrccdY0AbPuQaDXYe-JDcla9g3fNHC87KM"; 
     const BUCKET_NAME = "uploads"; 
 
-    // Inisialisasi Supabase Client
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let isAdmin = false;
     let itemsData = [];
 
     window.addEventListener("DOMContentLoaded", () => {
       fetchDataFromSupabase();
     });
 
-    // FUNGSI SWITCH MODE ADMIN (TERPERBAIKI)
-    function toggleAdminMode() {
-      isAdmin = !isAdmin;
-      const adminBtn = document.getElementById("adminBtn");
-      const adminText = document.getElementById("adminText");
-      const formSection = document.getElementById("adminFormSection");
-
-      if (isAdmin) {
-        adminText.innerText = "Mode Admin (Aktif)";
-        adminBtn.classList.replace("bg-indigo-800", "bg-emerald-600");
-        adminBtn.classList.replace("hover:bg-indigo-900", "hover:bg-emerald-700");
-        formSection.classList.remove("hidden");
-      } else {
-        adminText.innerText = "Mode Pengunjung";
-        adminBtn.classList.replace("bg-emerald-600", "bg-indigo-800");
-        adminBtn.classList.replace("hover:bg-emerald-700", "hover:bg-indigo-900");
-        formSection.classList.add("hidden");
-      }
-      renderList();
-    }
-
-    // Ambil Data dari Database Supabase
     async function fetchDataFromSupabase() {
       try {
         const { data, error } = await supabase.from('academic_items').select('*').order('created_at', { ascending: false });
@@ -167,12 +136,11 @@
         itemsData = data || [];
         renderList();
       } catch (err) {
-        console.error("Gagal mengambil data dari Supabase:", err.message);
+        console.error("Gagal mengambil data:", err.message);
         renderList();
       }
     }
 
-    // Simpan/Upload Data Ke Supabase Database & Storage
     async function handleFormSubmit(e) {
       e.preventDefault();
       const id = document.getElementById("editId").value;
@@ -190,7 +158,6 @@
         const { data: storageData, error: storageErr } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
         
         if (storageErr) {
-          console.warn("Storage error / file fallback:", storageErr.message);
           fileUrl = await readFileAsBase64(file);
         } else {
           const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
@@ -215,7 +182,7 @@
 
       await fetchDataFromSupabase();
       resetForm();
-      alert("Data berhasil disimpan ke Supabase!");
+      alert("Data berhasil disimpan!");
     }
 
     function readFileAsBase64(file) {
@@ -226,7 +193,6 @@
       });
     }
 
-    // Render Tampilan List Tugas & Materi
     function renderList() {
       const listTugas = document.getElementById("listTugas");
       const listMateri = document.getElementById("listMateri");
@@ -254,20 +220,16 @@
         </a>
       ` : '<span class="text-slate-400 italic">Tanpa File</span>';
 
-      const adminBtns = isAdmin ? `
-        <div class="flex gap-1 ml-2">
-          <button onclick="editItem('${item.id}')" class="p-1.5 text-slate-500 hover:text-indigo-600"><i class="fa-solid fa-pen"></i></button>
-          <button onclick="deleteItem('${item.id}')" class="p-1.5 text-slate-500 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      ` : '';
-
       card.innerHTML = `
         <div class="space-y-1">
           <span class="font-bold text-slate-700 block">${item.title}</span>
           <span class="text-[10px] text-slate-400 block">${new Date(item.created_at).toLocaleString('id-ID')}</span>
           <div>${fileBtn}</div>
         </div>
-        ${adminBtns}
+        <div class="flex gap-1 ml-2">
+          <button onclick="editItem('${item.id}')" class="p-1.5 text-slate-500 hover:text-indigo-600"><i class="fa-solid fa-pen"></i></button>
+          <button onclick="deleteItem('${item.id}')" class="p-1.5 text-slate-500 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>
+        </div>
       `;
       return card;
     }
@@ -295,7 +257,7 @@
     function resetForm() {
       document.getElementById("uploadForm").reset();
       document.getElementById("editId").value = "";
-      document.getElementById("formTitle").innerText = "Upload Data Baru";
+      document.getElementById("formTitle").innerText = "Upload Tugas / Materi Baru";
       document.getElementById("existingFileNote").classList.add("hidden");
     }
   </script>
