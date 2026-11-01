@@ -18,8 +18,8 @@
         <h1 class="text-xl font-bold tracking-wide">PORTAL AKADEMIK NO. 4</h1>
         <p class="text-xs text-indigo-200">Pengumpulan Tugas & Upload Materi Kuliah</p>
       </div>
-      <span class="bg-indigo-800 text-xs px-3 py-1 rounded-full text-indigo-100 font-semibold">
-        <i class="fa-solid fa-user-check mr-1"></i> Mode Admin Aktif
+      <span class="bg-emerald-600 text-xs px-3 py-1 rounded-full text-white font-semibold flex items-center gap-1">
+        <i class="fa-solid fa-circle-check"></i> Sistem Upload Aktif
       </span>
     </div>
   </header>
@@ -51,7 +51,7 @@
       </div>
     </section>
 
-    <!-- FORM UPLOAD (LANGSUNG TAMPIL DENGAN KETENTUAN PENGUMPULAN) -->
+    <!-- FORM UPLOAD (LANGSUNG TAMPIL PERMANEN TANPA MODE PENGUNJUNG) -->
     <section class="bg-white rounded-xl p-6 shadow-md border border-indigo-100">
       <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
         <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i>
@@ -71,7 +71,7 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tugas / Materi</label>
-            <input type="text" id="itemTitle" placeholder="Contoh: Tugas 1, Tugas 2, Modul 4..." required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <input type="text" id="itemTitle" placeholder="Contoh: Tugas 4 - Pemrograman Web" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
           </div>
         </div>
 
@@ -84,7 +84,7 @@
         <div class="flex gap-2 justify-end pt-2">
           <button type="button" onclick="resetForm()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300">Batal / Reset</button>
           <button type="submit" id="btnSubmit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 flex items-center gap-2">
-            <i class="fa-solid fa-paper-plane"></i> Simpan & Kirim
+            <i class="fa-solid fa-paper-plane"></i> Simpan & Upload
           </button>
         </div>
       </form>
