@@ -4,294 +4,611 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Tugas & Materi - Salsabila Putri</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            900: '#0c4a6e',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        /* Header & Nav */
+        header { background-color: #0369a1; color: white; position: sticky; top: 0; z-index: 40; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header-top { max-width: 1100px; margin: 0 auto; padding: 12px 16px; display: flex; justify-content: space-between; items-center; }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand-icon { background: rgba(255,255,255,0.2); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+        .brand-title { font-size: 16px; font-weight: bold; line-height: 1.2; }
+        .brand-sub { font-size: 11px; opacity: 0.8; }
+        
+        .btn-admin { background: rgba(12, 74, 110, 0.6); color: #f0f9ff; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .btn-admin:active { opacity: 0.8; }
+        
+        nav { background: rgba(12, 74, 110, 0.9); display: flex; overflow-x: auto; max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+        .nav-btn { background: none; border: none; color: #e0f2fe; padding: 12px 16px; font-size: 14px; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 500; }
+        .nav-btn.active { border-bottom-color: #fbbf24; color: #fbbf24; font-weight: bold; }
 
-    <!-- Header / Navbar -->
-    <header class="bg-brand-700 text-white shadow-md sticky top-0 z-40">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
-                    <i class="fa-solid fa-graduation-cap text-2xl text-amber-300"></i>
-                </div>
+        /* Main Container */
+        main { max-width: 1100px; margin: 0 auto; padding: 16px; width: 100%; flex-grow: 1; }
+
+        /* Banner Mahasiswa */
+        .card-profile { background: linear-gradient(135deg, #0284c7, #4338ca); color: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .badge-student { background: #fbbf24; color: #0f172a; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; display: inline-block; margin-bottom: 6px; }
+        .profile-name { font-size: 22px; font-weight: 800; }
+        .profile-nim { font-size: 13px; opacity: 0.9; margin-top: 2px; }
+        .profile-details { display: flex; gap: 8px; margin-top: 12px; font-size: 12px; }
+        .profile-tag { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        @media (min-width: 640px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+        .stat-card { background: white; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; }
+        .stat-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
+        .stat-val { font-size: 20px; font-weight: bold; }
+        .stat-lbl { font-size: 11px; color: #64748b; }
+
+        /* Content Sections */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media (min-width: 768px) { .dashboard-grid { grid-template-columns: 1fr 1fr; } }
+        .section-card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; padding: 16px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .section-title { font-size: 15px; font-weight: bold; }
+
+        /* Items List */
+        .item-list { display: flex; flex-direction: column; gap: 10px; }
+        .item-card { background: #f8fafc; border: 1px solid #f1f5f9; padding: 12px; border-radius: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .item-head { display: flex; justify-content: space-between; align-items: flex-start; }
+        .item-title { font-size: 13px; font-weight: bold; color: #0f172a; }
+        .item-desc { font-size: 12px; color: #475569; }
+        .badge-status { font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; }
+        .status-done { background: #dcfce7; color: #15803d; }
+        .status-pending { background: #fef3c7; color: #b45309; }
+
+        /* Buttons & Actions */
+        .btn-primary { background: #0284c7; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-purple { background: #9333ea; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-sm { font-size: 11px; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; }
+        .btn-edit { background: #e0f2fe; color: #0369a1; }
+        .btn-del { background: #fee2e2; color: #b91c1c; }
+
+        /* Filter Pills */
+        .filter-container { display: flex; gap: 6px; margin-bottom: 12px; align-items: center; font-size: 12px; }
+        .filter-btn { background: #e2e8f0; color: #475569; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+        .filter-btn.active { background: #0f172a; color: white; font-weight: bold; }
+
+        /* Modals */
+        .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 11px; font-weight: bold; color: #334155; }
+        .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; outline: none; }
+        .hidden { display: none !important; }
+
+        footer { text-align: center; font-size: 12px; color: #64748b; padding: 16px; background: white; border-top: 1px solid #e2e8f0; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div class="brand">
+                <div class="brand-icon">🎓</div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">Portal Akademik</h1>
-                    <p class="text-xs text-brand-100">Teknik Informatika - TI24B</p>
+                    <div class="brand-title">Portal Akademik</div>
+                    <div class="brand-sub">Teknik Informatika - TI24B</div>
                 </div>
             </div>
-            
-            <!-- Admin Toggle Button -->
-            <button id="adminToggleBtn" onclick="toggleAdminModal()" class="text-xs bg-brand-900/50 hover:bg-brand-900 text-brand-100 px-3 py-1.5 rounded-full border border-brand-500/30 transition flex items-center gap-1.5">
-                <i class="fa-solid fa-lock text-amber-400" id="adminIcon"></i>
+            <button class="btn-admin" onclick="toggleAdminModal()">
+                <span id="adminStatusIcon">🔒</span>
                 <span id="adminBtnText">Mode Admin</span>
             </button>
         </div>
-
-        <!-- Navigation Bar -->
-        <nav class="bg-brand-900/40 border-t border-brand-600/40 backdrop-blur-md">
-            <div class="max-w-6xl mx-auto flex justify-around sm:justify-start sm:gap-6 px-4">
-                <button onclick="switchTab('beranda')" id="nav-beranda" class="nav-btn py-2.5 px-4 text-sm font-semibold border-b-2 border-amber-400 text-amber-300 flex items-center gap-2">
-                    <i class="fa-solid fa-house"></i> Beranda
-                </button>
-                <button onclick="switchTab('tugas')" id="nav-tugas" class="nav-btn py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-brand-100 hover:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-list-check"></i> Tugas
-                </button>
-                <button onclick="switchTab('materi')" id="nav-materi" class="nav-btn py-2.5 px-4 text-sm font-medium border-b-2 border-transparent text-brand-100 hover:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-book-open"></i> Materi
-                </button>
-            </div>
+        <nav>
+            <button class="nav-btn active" id="nav-beranda" onclick="switchTab('beranda')">Beranda</button>
+            <button class="nav-btn" id="nav-tugas" onclick="switchTab('tugas')">Tugas</button>
+            <button class="nav-btn" id="nav-materi" onclick="switchTab('materi')">Materi</button>
         </nav>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
+    <!-- Main Content -->
+    <main>
+        <!-- Profil Banner -->
+        <div class="card-profile">
+            <span class="badge-student">Mahasiswa Aktif</span>
+            <div class="profile-name">SALSABILA PUTRI</div>
+            <div class="profile-nim">NIM: 240511035</div>
+            <div class="profile-details">
+                <span class="profile-tag">Kelas: TI24B</span>
+                <span class="profile-tag">Prodi: TEKNIK INFORMATIKA</span>
+            </div>
+        </div>
 
-        <!-- Banner Info Mahasiswa (Selalu Tampil) -->
-        <div class="bg-gradient-to-r from-brand-600 to-indigo-700 rounded-2xl p-5 md:p-6 text-white shadow-lg mb-6 relative overflow-hidden">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div class="space-y-1">
-                    <span class="inline-block bg-amber-400 text-slate-900 font-bold text-[10px] tracking-wider uppercase px-2.5 py-0.5 rounded-full mb-1">Identitas Mahasiswa</span>
-                    <h2 class="text-2xl font-extrabold tracking-tight" id="profileName">SALSABILA PUTRI</h2>
-                    <p class="text-brand-100 text-sm font-medium flex items-center gap-2">
-                        <i class="fa-solid fa-id-card"></i> NIM: 240511035
-                    </p>
+        <!-- TAB 1: BERANDA -->
+        <div id="tab-beranda">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;">📝</div>
+                    <div>
+                        <div class="stat-val" id="statTotalTugas">0</div>
+                        <div class="stat-lbl">Total Tugas</div>
+                    </div>
                 </div>
-                <div class="flex flex-wrap sm:flex-col gap-2 text-xs bg-white/10 p-3 rounded-xl border border-white/10 backdrop-blur-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="text-brand-200">Kelas:</span>
-                        <span class="font-bold bg-white/20 px-2 py-0.5 rounded">TI24B</span>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#dcfce7; color:#15803d;">✅</div>
+                    <div>
+                        <div class="stat-val" id="statSelesaiTugas">0</div>
+                        <div class="stat-lbl">Selesai</div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-brand-200">Prodi:</span>
-                        <span class="font-bold">TEKNIK INFORMATIKA</span>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#fef3c7; color:#b45309;">⏳</div>
+                    <div>
+                        <div class="stat-val" id="statBelumTugas">0</div>
+                        <div class="stat-lbl">Belum Selesai</div>
                     </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#f3e8ff; color:#7e22ce;">📚</div>
+                    <div>
+                        <div class="stat-val" id="statTotalMateri">0</div>
+                        <div class="stat-lbl">Total Materi</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title">📌 Tugas Terbaru</div>
+                        <button onclick="switchTab('tugas')" style="border:none; background:none; color:#0284c7; font-size:11px; cursor:pointer; font-weight:bold;">Lihat Semua &rarr;</button>
+                    </div>
+                    <div class="item-list" id="recentTugasList"></div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title">📖 Materi Terbaru</div>
+                        <button onclick="switchTab('materi')" style="border:none; background:none; color:#9333ea; font-size:11px; cursor:pointer; font-weight:bold;">Lihat Semua &rarr;</button>
+                    </div>
+                    <div class="item-list" id="recentMateriList"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Notification Toast -->
-        <div id="toast" class="hidden mb-4 p-4 rounded-xl text-sm font-medium flex items-center justify-between shadow-sm transition-all duration-300"></div>
-
-        <!-- ================= TAB 1: BERANDA ================= -->
-        <section id="tab-beranda" class="space-y-6">
-            <!-- Summary Counters -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
-                    <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
-                        <i class="fa-solid fa-tasks text-xl"></i>
-                    </div>
+        <!-- TAB 2: TUGAS -->
+        <div id="tab-tugas" class="hidden">
+            <div class="section-card" style="margin-bottom: 12px;">
+                <div class="section-header">
                     <div>
-                        <p class="text-xs text-slate-500 font-medium">Total Tugas</p>
-                        <p class="text-xl font-bold text-slate-800" id="statTotalTugas">0</p>
+                        <div class="section-title">Daftar Pengumpulan Tugas</div>
+                        <div style="font-size: 11px; color: #64748b;">Kelola status dan catatan tugas kuliah.</div>
                     </div>
+                    <button class="btn-primary hidden" id="addTugasBtn" onclick="openTugasModal()">+ Tambah Tugas</button>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
-                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
-                        <i class="fa-solid fa-circle-check text-xl"></i>
-                    </div>
+                <div class="filter-container">
+                    <span style="color:#64748b;">Filter:</span>
+                    <button class="filter-btn active" id="flt-all" onclick="filterTugas('all')">Semua</button>
+                    <button class="filter-btn" id="flt-pending" onclick="filterTugas('pending')">Belum Selesai</button>
+                    <button class="filter-btn" id="flt-done" onclick="filterTugas('done')">Selesai</button>
+                </div>
+            </div>
+            <div class="item-list" id="tugasGrid"></div>
+        </div>
+
+        <!-- TAB 3: MATERI -->
+        <div id="tab-materi" class="hidden">
+            <div class="section-card" style="margin-bottom: 12px;">
+                <div class="section-header">
                     <div>
-                        <p class="text-xs text-slate-500 font-medium">Selesai</p>
-                        <p class="text-xl font-bold text-emerald-600" id="statSelesaiTugas">0</p>
+                        <div class="section-title">Modul & Materi Kuliah</div>
+                        <div style="font-size: 11px; color: #64748b;">Arsip bahan ajar perkuliahan.</div>
                     </div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
-                    <div class="p-3 bg-amber-50 text-amber-600 rounded-lg">
-                        <i class="fa-solid fa-clock text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium">Belum Selesai</p>
-                        <p class="text-xl font-bold text-amber-600" id="statBelumTugas">0</p>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
-                    <div class="p-3 bg-purple-50 text-purple-600 rounded-lg">
-                        <i class="fa-solid fa-folder-open text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium">Total Materi</p>
-                        <p class="text-xl font-bold text-purple-600" id="statTotalMateri">0</p>
-                    </div>
+                    <button class="btn-purple hidden" id="addMateriBtn" onclick="openMateriModal()">+ Tambah Materi</button>
                 </div>
             </div>
-
-            <!-- Dashboard Columns -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Recent Tugas -->
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-brand-600"></i> Tugas Terbaru
-                        </h3>
-                        <button onclick="switchTab('tugas')" class="text-xs text-brand-600 font-semibold hover:underline">Lihat Semua &rarr;</button>
-                    </div>
-                    <div id="recentTugasList" class="space-y-3">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-
-                <!-- Recent Materi -->
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-book-open text-purple-600"></i> Materi Terbaru
-                        </h3>
-                        <button onclick="switchTab('materi')" class="text-xs text-purple-600 font-semibold hover:underline">Lihat Semua &rarr;</button>
-                    </div>
-                    <div id="recentMateriList" class="space-y-3">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= TAB 2: TUGAS ================= -->
-        <section id="tab-tugas" class="hidden space-y-6">
-            <!-- Header Section & Admin Controls -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Daftar Tugas Praktikum & Kuliah</h2>
-                    <p class="text-xs text-slate-500">Kelola dan pantau status pengerjaan tugas anda.</p>
-                </div>
-                
-                <button id="addTugasBtn" onclick="openTugasModal()" class="hidden bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Tambah Tugas Baru
-                </button>
-            </div>
-
-            <!-- Filter Status -->
-            <div class="flex items-center gap-2 text-xs font-medium">
-                <span class="text-slate-500">Filter Status:</span>
-                <button onclick="filterTugas('all')" id="filter-tugas-all" class="px-3 py-1 rounded-lg bg-slate-800 text-white font-semibold">Semua</button>
-                <button onclick="filterTugas('pending')" id="filter-tugas-pending" class="px-3 py-1 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300">Belum Selesai</button>
-                <button onclick="filterTugas('done')" id="filter-tugas-done" class="px-3 py-1 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300">Selesai</button>
-            </div>
-
-            <!-- List Tugas Grid -->
-            <div id="tugasGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Populated by JS -->
-            </div>
-        </section>
-
-        <!-- ================= TAB 3: MATERI ================= -->
-        <section id="tab-materi" class="hidden space-y-6">
-            <!-- Header Section & Admin Controls -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Arsip Materi & Modul Learning</h2>
-                    <p class="text-xs text-slate-500">Simpan dan akses tautan file materi perkuliahan.</p>
-                </div>
-                
-                <button id="addMateriBtn" onclick="openMateriModal()" class="hidden bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Tambah Materi Baru
-                </button>
-            </div>
-
-            <!-- List Materi Grid -->
-            <div id="materiGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Populated by JS -->
-            </div>
-        </section>
-
+            <div class="item-list" id="materiGrid"></div>
+        </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-8">
-        <p>&copy; 2026 Salsabila Putri - Teknik Informatika (TI24B)</p>
+    <footer>
+        &copy; 2026 Salsabila Putri - Teknik Informatika (TI24B)
     </footer>
 
-    <!-- ================= MODALS ================= -->
-
-    <!-- Admin PIN Modal -->
-    <div id="adminModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-6 shadow-xl border border-slate-100 space-y-4">
-            <div class="text-center space-y-1">
-                <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <i class="fa-solid fa-lock text-xl"></i>
-                </div>
-                <h3 class="font-bold text-slate-800">Akses Mode Admin</h3>
-                <p class="text-xs text-slate-500">Masukkan PIN default: <span class="font-mono bg-slate-100 px-1 py-0.5 rounded">1234</span></p>
+    <!-- MODAL ADMIN PIN -->
+    <div class="modal hidden" id="adminModal">
+        <div class="modal-content">
+            <div style="text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 4px;">🔐</div>
+                <div style="font-weight: bold; font-size: 14px;">Masukkan PIN Admin</div>
+                <div style="font-size: 11px; color: #64748b;">PIN Default: <b>1234</b></div>
             </div>
-            <div>
-                <input type="password" id="adminPinInput" placeholder="Masukkan PIN" class="w-full text-center tracking-widest text-lg font-bold border border-slate-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+            <div class="form-group">
+                <input type="password" id="adminPinInput" class="form-control" style="text-align: center; font-size: 16px; letter-spacing: 4px;" placeholder="****">
             </div>
-            <div class="flex gap-2">
-                <button onclick="toggleAdminModal()" class="w-1/2 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl">Batal</button>
-                <button onclick="verifyAdminPin()" class="w-1/2 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl">Masuk</button>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-primary" style="background:#cbd5e1; color:#334155; width:50%;" onclick="toggleAdminModal()">Batal</button>
+                <button class="btn-primary" style="width:50%;" onclick="verifyAdminPin()">Masuk</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Form Tugas -->
-    <div id="tugasModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-slate-800" id="tugasModalTitle">Tambah Tugas</h3>
-                <button onclick="closeTugasModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form id="tugasForm" onsubmit="saveTugas(event)" class="space-y-3">
+    <!-- MODAL FORM TUGAS -->
+    <div class="modal hidden" id="tugasModal">
+        <div class="modal-content">
+            <div style="font-weight: bold; font-size: 14px;" id="tugasModalTitle">Tambah Tugas</div>
+            <form onsubmit="saveTugas(event)">
                 <input type="hidden" id="tugasId">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Mata Kuliah / Tugas Berapa</label>
-                    <input type="text" id="tugasJudul" required placeholder="Contoh: Tugas 4 - Pemrograman Web" class="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label>Keterangan Tugas / Matkul</label>
+                    <input type="text" id="tugasJudul" class="form-control" placeholder="Contoh: Tugas 4 - Pemrograman Web" required>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan / Detail Tugas</label>
-                    <textarea id="tugasKet" rows="3" required placeholder="Tuliskan keterangan ringkas tugas..." class="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label>Detail Catatan</label>
+                    <textarea id="tugasKet" class="form-control" rows="3" placeholder="Rincian deskripsi tugas..." required></textarea>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Tenggat Waktu / Deadline (Opsional)</label>
-                    <input type="date" id="tugasDeadline" class="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label>Deadline (Opsional)</label>
+                    <input type="date" id="tugasDeadline" class="form-control">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Status Pengerjaan</label>
-                    <select id="tugasStatus" class="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label>Status</label>
+                    <select id="tugasStatus" class="form-control">
                         <option value="pending">Belum Selesai</option>
                         <option value="done">Selesai</option>
                     </select>
                 </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeTugasModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg">Batal</button>
-                    <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg">Simpan</button>
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button type="button" class="btn-primary" style="background:#cbd5e1; color:#334155;" onclick="closeTugasModal()">Batal</button>
+                    <button type="submit" class="btn-primary">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal Form Materi -->
-    <div id="materiModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-slate-800" id="materiModalTitle">Tambah Materi</h3>
-                <button onclick="closeMateriModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form id="materiForm" onsubmit="saveMateri(event)" class="space-y-3">
+    <!-- MODAL FORM MATERI -->
+    <div class="modal hidden" id="materiModal">
+        <div class="modal-content">
+            <div style="font-weight: bold; font-size: 14px;" id="materiModalTitle">Tambah Materi</div>
+            <form onsubmit="saveMateri(event)">
                 <input type="hidden" id="materiId">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Judul Materi / Pertemuan</label>
-                    <input type="text" id="materiJudul" required placeholder="Contoh: Pertemuan 4 - Basis Data" class="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500">
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label>Judul Materi</label>
+                    <input type="text" id="materiJudul" class="form-control" placeholder="Contoh: Pertemuan 4 - Grid CSS" required>
                 </div>
-                <div>
-                    <label class="block text-xs font
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label>Mata Kuliah</label>
+                    <input type="text" id="materiMatkul" class="form-control" placeholder="Contoh: Pemrograman Web" required>
+                </div>
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label>Deskripsi Ringkas</label>
+                    <textarea id="materiDeskripsi" class="form-control" rows="2" placeholder="Keterangan isi materi..."></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label>Link File / Google Drive</label>
+                    <input type="url" id="materiLink" class="form-control" placeholder="https://drive.google.com/...">
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button type="button" class="btn-primary" style="background:#cbd5e1; color:#334155;" onclick="closeMateriModal()">Batal</button>
+                    <button type="submit" class="btn-purple">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        var isAdmin = false;
+        var currentTugasFilter = 'all';
+
+        var initialTugas = [
+            { id: '1', judul: 'Tugas 4 - Pemrograman Web', keterangan: 'Membuat halaman web portal tugas & materi responsif untuk Salsabila Putri (TI24B).', deadline: '2026-11-10', status: 'done' },
+            { id: '2', judul: 'Tugas 3 - Basis Data', keterangan: 'Praktikum query SQL DDL & DML PostgreSQL.', deadline: '2026-11-15', status: 'pending' }
+        ];
+
+        var initialMateri = [
+            { id: '1', judul: 'Pertemuan 4 - Layouting CSS', matkul: 'Pemrograman Web', deskripsi: 'Slide presentasi materi Flexbox dan Grid System.', link: 'https://drive.google.com' },
+            { id: '2', judul: 'Pertemuan 3 - Relasi Tabel', matkul: 'Basis Data', deskripsi: 'Modul praktikum Inner Join & Outer Join.', link: 'https://drive.google.com' }
+        ];
+
+        function getTugas() {
+            var data = localStorage.getItem('sp_tugas');
+            return data ? JSON.parse(data) : initialTugas;
+        }
+
+        function setTugas(data) {
+            localStorage.setItem('sp_tugas', JSON.stringify(data));
+        }
+
+        function getMateri() {
+            var data = localStorage.getItem('sp_materi');
+            return data ? JSON.parse(data) : initialMateri;
+        }
+
+        function setMateri(data) {
+            localStorage.setItem('sp_materi', JSON.stringify(data));
+        }
+
+        window.onload = function() {
+            if (!localStorage.getItem('sp_tugas')) setTugas(initialTugas);
+            if (!localStorage.getItem('sp_materi')) setMateri(initialMateri);
+            renderAll();
+        };
+
+        function switchTab(tab) {
+            document.getElementById('tab-beranda').classList.add('hidden');
+            document.getElementById('tab-tugas').classList.add('hidden');
+            document.getElementById('tab-materi').classList.add('hidden');
+
+            document.getElementById('nav-beranda').classList.remove('active');
+            document.getElementById('nav-tugas').classList.remove('active');
+            document.getElementById('nav-materi').classList.remove('active');
+
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            document.getElementById('nav-' + tab).classList.add('active');
+        }
+
+        function toggleAdminModal() {
+            if (isAdmin) {
+                isAdmin = false;
+                updateAdminState();
+                alert('Mode Admin Nonaktif');
+            } else {
+                document.getElementById('adminModal').classList.remove('hidden');
+                document.getElementById('adminPinInput').value = '';
+            }
+        }
+
+        function verifyAdminPin() {
+            var pin = document.getElementById('adminPinInput').value;
+            if (pin === '1234') {
+                isAdmin = true;
+                document.getElementById('adminModal').classList.add('hidden');
+                updateAdminState();
+                alert('Akses Admin Diterima!');
+            } else {
+                alert('PIN Salah! (Gunakan 1234)');
+            }
+        }
+
+        function updateAdminState() {
+            document.getElementById('adminBtnText').innerText = isAdmin ? 'Keluar Admin' : 'Mode Admin';
+            document.getElementById('adminStatusIcon').innerText = isAdmin ? '🔓' : '🔒';
+            
+            if (isAdmin) {
+                document.getElementById('addTugasBtn').classList.remove('hidden');
+                document.getElementById('addMateriBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('addTugasBtn').classList.add('hidden');
+                document.getElementById('addMateriBtn').classList.add('hidden');
+            }
+            renderAll();
+        }
+
+        function renderAll() {
+            renderStats();
+            renderRecent();
+            renderTugas();
+            renderMateri();
+        }
+
+        function renderStats() {
+            var tugas = getTugas();
+            var materi = getMateri();
+            
+            document.getElementById('statTotalTugas').innerText = tugas.length;
+            document.getElementById('statSelesaiTugas').innerText = tugas.filter(function(t){ return t.status === 'done'; }).length;
+            document.getElementById('statBelumTugas').innerText = tugas.filter(function(t){ return t.status === 'pending'; }).length;
+            document.getElementById('statTotalMateri').innerText = materi.length;
+        }
+
+        function renderRecent() {
+            var tugas = getTugas().slice(0, 3);
+            var materi = getMateri().slice(0, 3);
+
+            document.getElementById('recentTugasList').innerHTML = tugas.map(function(t) {
+                return '<div class="item-card">' +
+                    '<div class="item-head">' +
+                        '<div class="item-title">' + t.judul + '</div>' +
+                        '<span class="badge-status ' + (t.status === 'done' ? 'status-done' : 'status-pending') + '">' + (t.status === 'done' ? 'Selesai' : 'Belum') + '</span>' +
+                    '</div>' +
+                    '<div class="item-desc">' + t.keterangan + '</div>' +
+                '</div>';
+            }).join('');
+
+            document.getElementById('recentMateriList').innerHTML = materi.map(function(m) {
+                return '<div class="item-card">' +
+                    '<div class="item-head">' +
+                        '<div class="item-title">' + m.judul + '</div>' +
+                        '<span style="font-size:10px; color:#9333ea; font-weight:bold;">' + m.matkul + '</span>' +
+                    '</div>' +
+                    '<div class="item-desc">' + (m.deskripsi || '') + '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function filterTugas(st) {
+            currentTugasFilter = st;
+            ['all', 'pending', 'done'].forEach(function(s) {
+                document.getElementById('flt-' + s).classList.remove('active');
+            });
+            document.getElementById('flt-' + st).classList.add('active');
+            renderTugas();
+        }
+
+        function renderTugas() {
+            var data = getTugas();
+            if (currentTugasFilter !== 'all') {
+                data = data.filter(function(t) { return t.status === currentTugasFilter; });
+            }
+
+            var grid = document.getElementById('tugasGrid');
+            if (data.length === 0) {
+                grid.innerHTML = '<div style="text-align:center; font-size:12px; color:#94a3b8; padding:20px;">Tidak ada data tugas.</div>';
+                return;
+            }
+
+            grid.innerHTML = data.map(function(t) {
+                return '<div class="item-card">' +
+                    '<div class="item-head">' +
+                        '<div class="item-title">' + t.judul + '</div>' +
+                        '<button class="badge-status ' + (t.status === 'done' ? 'status-done' : 'status-pending') + '" onclick="toggleTugasStatus(\'' + t.id + '\')">' + (t.status === 'done' ? '✓ Selesai' : '⏳ Belum Selesai') + '</button>' +
+                    '</div>' +
+                    '<div class="item-desc">' + t.keterangan + '</div>' +
+                    '<div style="display:flex; justify-between; align-items:center; margin-top:6px; font-size:11px; color:#94a3b8;">' +
+                        '<span>Deadline: ' + (t.deadline || '-') + '</span>' +
+                        (isAdmin ? '<div><button class="btn-sm btn-edit" onclick="editTugas(\'' + t.id + '\')">Edit</button> <button class="btn-sm btn-del" onclick="deleteTugas(\'' + t.id + '\')">Hapus</button></div>' : '') +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function renderMateri() {
+            var data = getMateri();
+            var grid = document.getElementById('materiGrid');
+            if (data.length === 0) {
+                grid.innerHTML = '<div style="text-align:center; font-size:12px; color:#94a3b8; padding:20px;">Tidak ada data materi.</div>';
+                return;
+            }
+
+            grid.innerHTML = data.map(function(m) {
+                return '<div class="item-card">' +
+                    '<span style="font-size:10px; color:#9333ea; font-weight:bold;">' + m.matkul + '</span>' +
+                    '<div class="item-title">' + m.judul + '</div>' +
+                    '<div class="item-desc">' + (m.deskripsi || '-') + '</div>' +
+                    '<div style="display:flex; justify-between; align-items:center; margin-top:6px;">' +
+                        (m.link ? '<a href="' + m.link + '" target="_blank" style="font-size:11px; color:#9333ea; font-weight:bold; text-decoration:none;">🔗 Buka Link File</a>' : '<span></span>') +
+                        (isAdmin ? '<div><button class="btn-sm btn-edit" onclick="editMateri(\'' + m.id + '\')">Edit</button> <button class="btn-sm btn-del" onclick="deleteMateri(\'' + m.id + '\')">Hapus</button></div>' : '') +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function openTugasModal(id) {
+            document.getElementById('tugasModal').classList.remove('hidden');
+            document.getElementById('tugasId').value = '';
+            document.getElementById('tugasJudul').value = '';
+            document.getElementById('tugasKet').value = '';
+            document.getElementById('tugasDeadline').value = '';
+            document.getElementById('tugasStatus').value = 'pending';
+            document.getElementById('tugasModalTitle').innerText = 'Tambah Tugas Baru';
+
+            if (id) {
+                var t = getTugas().find(function(x) { return x.id === id; });
+                if (t) {
+                    document.getElementById('tugasId').value = t.id;
+                    document.getElementById('tugasJudul').value = t.judul;
+                    document.getElementById('tugasKet').value = t.keterangan;
+                    document.getElementById('tugasDeadline').value = t.deadline || '';
+                    document.getElementById('tugasStatus').value = t.status;
+                    document.getElementById('tugasModalTitle').innerText = 'Edit Tugas';
+                }
+            }
+        }
+
+        function closeTugasModal() {
+            document.getElementById('tugasModal').classList.add('hidden');
+        }
+
+        function saveTugas(e) {
+            e.preventDefault();
+            var id = document.getElementById('tugasId').value;
+            var list = getTugas();
+
+            var item = {
+                id: id || Date.now().toString(),
+                judul: document.getElementById('tugasJudul').value,
+                keterangan: document.getElementById('tugasKet').value,
+                deadline: document.getElementById('tugasDeadline').value,
+                status: document.getElementById('tugasStatus').value
+            };
+
+            if (id) {
+                var idx = list.findIndex(function(x) { return x.id === id; });
+                if (idx !== -1) list[idx] = item;
+            } else {
+                list.unshift(item);
+            }
+
+            setTugas(list);
+            closeTugasModal();
+            renderAll();
+        }
+
+        function toggleTugasStatus(id) {
+            var list = getTugas();
+            var item = list.find(function(x) { return x.id === id; });
+            if (item) {
+                item.status = item.status === 'done' ? 'pending' : 'done';
+                setTugas(list);
+                renderAll();
+            }
+        }
+
+        function editTugas(id) { openTugasModal(id); }
+
+        function deleteTugas(id) {
+            if (confirm('Hapus tugas ini?')) {
+                setTugas(getTugas().filter(function(x) { return x.id !== id; }));
+                renderAll();
+            }
+        }
+
+        function openMateriModal(id) {
+            document.getElementById('materiModal').classList.remove('hidden');
+            document.getElementById('materiId').value = '';
+            document.getElementById('materiJudul').value = '';
+            document.getElementById('materiMatkul').value = '';
+            document.getElementById('materiDeskripsi').value = '';
+            document.getElementById('materiLink').value = '';
+            document.getElementById('materiModalTitle').innerText = 'Tambah Materi Baru';
+
+            if (id) {
+                var m = getMateri().find(function(x) { return x.id === id; });
+                if (m) {
+                    document.getElementById('materiId').value = m.id;
+                    document.getElementById('materiJudul').value = m.judul;
+                    document.getElementById('materiMatkul').value = m.matkul;
+                    document.getElementById('materiDeskripsi').value = m.deskripsi || '';
+                    document.getElementById('materiLink').value = m.link || '';
+                    document.getElementById('materiModalTitle').innerText = 'Edit Materi';
+                }
+            }
+        }
+
+        function closeMateriModal() {
+            document.getElementById('materiModal').classList.add('hidden');
+        }
+
+        function saveMateri(e) {
+            e.preventDefault();
+            var id = document.getElementById('materiId').value;
+            var list = getMateri();
+
+            var item = {
+                id: id || Date.now().toString(),
+                judul: document.getElementById('materiJudul').value,
+                matkul: document.getElementById('materiMatkul').value,
+                deskripsi: document.getElementById('materiDeskripsi').value,
+                link: document.getElementById('materiLink').value
+            };
+
+            if (id) {
+                var idx = list.findIndex(function(x) { return x.id === id; });
+                if (idx !== -1) list[idx] = item;
+            } else {
+                list.unshift(item);
+            }
+
+            setMateri(list);
+            closeMateriModal();
+            renderAll();
+        }
+
+        function editMateri(id) { openMateriModal(id); }
+
+        function deleteMateri(id) {
+            if (confirm('Hapus materi ini?')) {
+                setMateri(getMateri().filter(function(x) { return x.id !== id; }));
+                renderAll();
+            }
+        }
+    </script>
+</body>
+</html>
