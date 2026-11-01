@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Tugas & Materi - Salsabila Putri</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans pb-12">
+
+  <!-- NAVBAR & PROFILE HEADER -->
+  <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div>
+        <h1 class="text-xl font-bold tracking-wide">PORTAL AKADEMIK NO. 4</h1>
+        <p class="text-xs text-indigo-200">Pengumpulan Tugas & Upload Materi Kuliah</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <label class="flex items-center cursor-pointer bg-indigo-800 px-3 py-1.5 rounded-full text-xs hover:bg-indigo-900 transition">
+          <input type="checkbox" id="adminToggle" class="sr-only" onchange="toggleAdminMode()">
+          <i class="fa-solid fa-user-gear mr-2"></i>
+          <span id="adminText">Mode Pengunjung</span>
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
+
+    <!-- DASHBOARD IDENTITAS -->
+    <section class="bg-white rounded-xl p-6 shadow-md border-l-8 border-indigo-600">
+      <h2 class="text-sm font-semibold text-indigo-600 uppercase tracking-wider mb-4">
+        <i class="fa-solid fa-id-card mr-2"></i>Data Mahasiswa
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <span class="block text-xs text-slate-500 font-bold">NAMA</span>
+          <span class="font-semibold text-indigo-950">Salsabila Putri</span>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <span class="block text-xs text-slate-500 font-bold">NIM</span>
+          <span class="font-semibold text-indigo-950">240511035</span>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <span class="block text-xs text-slate-500 font-bold">KELAS</span>
+          <span class="font-semibold text-indigo-950">TI24B</span>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <span class="block text-xs text-slate-500 font-bold">PRODI</span>
+          <span class="font-semibold text-indigo-950">TEKNIK INFORMATIKA</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN PANEL: FORM UPLOAD (MUNCUL DI MODE ADMIN) -->
+    <section id="adminFormSection" class="hidden bg-white rounded-xl p-6 shadow-md border border-indigo-100">
+      <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i>
+        <span id="formTitle">Upload Data Baru</span>
+      </h2>
+
+      <form id="uploadForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+        <input type="hidden" id="editId" value="">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori</label>
+            <select id="itemCategory" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+              <option value="tugas">Pengumpulan Tugas</option>
+              <option value="materi">Upload Materi Kuliah</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan Tugas / Materi</label>
+            <input type="text" id="itemTitle" placeholder="Contoh: Tugas 4 - Pemrograman Web / Modul 2" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih File (Choose File)</label>
+          <input type="file" id="itemFile" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-200 rounded-lg p-1">
+          <p id="existingFileNote" class="text-xs text-slate-400 mt-1 hidden"></p>
+        </div>
+
+        <div class="flex gap-2 justify-end pt-2">
+          <button type="button" onclick="resetForm()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-300">Batal / Reset</button>
+          <button type="submit" id="btnSubmit" class="px-5 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 flex items-center gap-2">
+            <i class="fa-solid fa-save"></i> Simpan ke Supabase
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- LIST DATA TUGAS & MATERI -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- KOLOM TUGAS -->
+      <section class="bg-white rounded-xl p-6 shadow-md border border-slate-100">
+        <h2 class="text-base font-bold text-slate-800 mb-4 pb-2 border-b border-slate-200 flex justify-between items-center">
+          <span><i class="fa-solid fa-tasks text-indigo-600 mr-2"></i>Daftar Tugas</span>
+          <span id="countTugas" class="bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full">0</span>
+        </h2>
+        <div id="listTugas" class="space-y-3">
+          <p class="text-xs text-slate-400 text-center py-4">Memuat data dari Supabase...</p>
+        </div>
+      </section>
+
+      <!-- KOLOM MATERI -->
+      <section class="bg-white rounded-xl p-6 shadow-md border border-slate-100">
+        <h2 class="text-base font-bold text-slate-800 mb-4 pb-2 border-b border-slate-200 flex justify-between items-center">
+          <span><i class="fa-solid fa-book-open text-emerald-600 mr-2"></i>Daftar Materi Kuliah</span>
+          <span id="countMateri" class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">0</span>
+        </h2>
+        <div id="listMateri" class="space-y-3">
+          <p class="text-xs text-slate-400 text-center py-4">Memuat data dari Supabase...</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- JAVASCRIPT AUTOMATIC SUPABASE INTEGRATION -->
+  <script>
+    // ==========================================
+    // API KEY & URL SUPABASE MILIK SALSABILA PUTRI
+    // ==========================================
+    const SUPABASE_URL = "https://vrlkwwkemsfeuypvrvcr.supabase.co"; 
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZybGt3d2tlbXNmZXV5dnZydmNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDU1NjMsImV4cCI6MjEwOTEyMTU2M30.J6EPaVRZLVrccdY0AbPuQaDXYe-JDcla9g3fNHC87KM"; 
+    const BUCKET_NAME = "uploads"; 
+
+    // Inisialisasi Supabase Client
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let isAdmin = false;
+    let itemsData = [];
+
+    window.addEventListener("DOMContentLoaded", () => {
+      fetchDataFromSupabase();
+    });
+
+    function toggleAdminMode() {
+      isAdmin = document.getElementById("adminToggle").checked;
+      document.getElementById("adminText").innerText = isAdmin ? "Mode Admin" : "Mode Pengunjung";
+      document.getElementById("adminFormSection").classList.toggle("hidden", !isAdmin);
+      renderList();
+    }
+
+    // Ambil Data dari Database Supabase
+    async function fetchDataFromSupabase() {
+      try {
+        const { data, error } = await supabase.from('academic_items').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        itemsData = data || [];
+        renderList();
+      } catch (err) {
+        console.error("Gagal mengambil data dari Supabase:", err.message);
+      }
+    }
+
+    // Simpan/Upload Data Ke Supabase Database & Storage
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById("editId").value;
+      const category = document.getElementById("itemCategory").value;
+      const title = document.getElementById("itemTitle").value;
+      const fileInput = document.getElementById("itemFile");
+      const file = fileInput.files[0];
+
+      let fileUrl = "";
+      let fileName = "";
+
+      if (file) {
+        fileName = file.name;
+        // Upload File ke Bucket 'uploads' di Supabase Storage
+        const filePath = `${category}/${Date.now()}_${file.name}`;
+        const { data: storageData, error: storageErr } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
+        
+        if (storageErr) {
+          console.warn("Storage error / file fallback:", storageErr.message);
+          fileUrl = await readFileAsBase64(file); // Fallback jika bucket belum diset
+        } else {
+          const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+          fileUrl = publicUrlData.publicUrl;
+        }
+      }
+
+      const newItem = {
+        id: id ? id : Date.now().toString(),
+        category,
+        title,
+        file_url: fileUrl || (id ? itemsData.find(x => x.id == id)?.file_url : ""),
+        file_name: fileName || (id ? itemsData.find(x => x.id == id)?.file_name : "File Terlampir"),
+        created_at: new Date().toISOString()
+      };
+
+      if (id) {
+        await supabase.from('academic_items').update(newItem).eq('id', id);
+      } else {
+        await supabase.from('academic_items').insert([newItem]);
+      }
+
+      await fetchDataFromSupabase();
+      resetForm();
+      alert("Data berhasil disimpan ke Supabase!");
+    }
+
+    // Utility Base64
+    function readFileAsBase64(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Render Tampilan List Tugas & Materi
+    function renderList() {
+      const listTugas = document.getElementById("listTugas");
+      const listMateri = document.getElementById("listMateri");
+      
+      const tugasArr = itemsData.filter(i => i.category === 'tugas');
+      const materiArr = itemsData.filter(i => i.category === 'materi');
+
+      document.getElementById("countTugas").innerText = tugasArr.length;
+      document.getElementById("countMateri").innerText = materiArr.length;
+
+      listTugas.innerHTML = tugasArr.length ? "" : `<p class="text-xs text-slate-400 italic py-2 text-center">Belum ada tugas.</p>`;
+      listMateri.innerHTML = materiArr.length ? "" : `<p class="text-xs text-slate-400 italic py-2 text-center">Belum ada materi.</p>`;
+
+      tugasArr.forEach(item => listTugas.appendChild(createItemCard(item)));
+      materiArr.forEach(item => listMateri.appendChild(createItemCard(item)));
+    }
+
+    function createItemCard(item) {
+      const card = document.createElement("div");
+      card.className = "p-3 rounded-lg border border-slate-200 bg-slate-50 flex justify-between items-center text-xs";
+      
+      const fileBtn = item.file_url ? `
+        <a href="${item.file_url}" download="${item.file_name}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-1 bg-white px-2 py-1 rounded border border-indigo-200 mt-1">
+          <i class="fa-solid fa-download"></i> Unduh File
+        </a>
+      ` : '<span class="text-slate-400 italic">Tanpa File</span>';
+
+      const adminBtns = isAdmin ? `
+        <div class="flex gap-1 ml-2">
+          <button onclick="editItem('${item.id}')" class="p-1.5 text-slate-500 hover:text-indigo-600"><i class="fa-solid fa-pen"></i></button>
+          <button onclick="deleteItem('${item.id}')" class="p-1.5 text-slate-500 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      ` : '';
+
+      card.innerHTML = `
+        <div class="space-y-1">
+          <span class="font-bold text-slate-700 block">${item.title}</span>
+          <span class="text-[10px] text-slate-400 block">${new Date(item.created_at).toLocaleString('id-ID')}</span>
+          <div>${fileBtn}</div>
+        </div>
+        ${adminBtns}
+      `;
+      return card;
+    }
+
+    // Edit Item
+    function editItem(id) {
+      const item = itemsData.find(x => x.id == id);
+      if (!item) return;
+
+      document.getElementById("editId").value = item.id;
+      document.getElementById("itemCategory").value = item.category;
+      document.getElementById("itemTitle").value = item.title;
+      document.getElementById("formTitle").innerText = "Edit Data";
+      document.getElementById("existingFileNote").classList.remove("hidden");
+      document.getElementById("existingFileNote").innerText = `File saat ini: ${item.file_name || 'Ada'}. Biarkan kosong jika tidak diganti.`;
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Hapus Item
+    async function deleteItem(id) {
+      if (!confirm("Yakin ingin menghapus data ini?")) return;
+      await supabase.from('academic_items').delete().eq('id', id);
+      await fetchDataFromSupabase();
+    }
+
+    // Reset Form
+    function resetForm() {
+      document.getElementById("uploadForm").reset();
+      document.getElementById("editId").value = "";
+      document.getElementById("formTitle").innerText = "Upload Data Baru";
+      document.getElementById("existingFileNote").classList.add("hidden");
+    }
+  </script>
+</body>
+</html>
