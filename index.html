@@ -122,23 +122,36 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZybGt3d2tlbXNmZXV5cHZydmNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDU1NjMsImV4cCI6MjEwOTEyMTU2M30.J6EPaVRZLVrccdY0AbPuQaDXYe-JDcla9g3fNHC87KM"; 
     const BUCKET_NAME = "uploads"; 
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let itemsData = [];
+    let supabase = null;
+    try {
+      if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch (e) {
+      console.warn("Supabase Init Error:", e);
+    }
+
+    let itemsData = JSON.parse(localStorage.getItem("academic_local_db") || "[]");
 
     window.addEventListener("DOMContentLoaded", () => {
-      fetchDataFromSupabase();
+      fetchData();
     });
 
-    async function fetchDataFromSupabase() {
-      try {
-        const { data, error } = await supabase.from('academic_items').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
-        itemsData = data || [];
-        renderList();
-      } catch (err) {
-        console.error("Gagal mengambil data:", err.message);
-        renderList();
+    async function fetchData() {
+      let fetched = false;
+      if (supabase) {
+        try {
+          const { data, error } = await supabase.from('academic_items').select('*').order('created_at', { ascending: false });
+          if (!error && data) {
+            itemsData = data;
+            localStorage.setItem("academic_local_db", JSON.stringify(itemsData));
+            fetched = true;
+          }
+        } catch (err) {
+          console.warn("Gagal konek Supabase, menggunakan penyimpanan lokal:", err);
+        }
       }
+      renderList();
     }
 
     async function handleFormSubmit(e) {
@@ -158,15 +171,23 @@
 
       if (file) {
         fileName = file.name;
-        const filePath = `${category}/${Date.now()}_${file.name}`;
-        const { data: storageData, error: storageErr } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
+        if (supabase) {
+          try {
+            const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+            const filePath = `${category}/${Date.now()}_${cleanFileName}`;
+            const { data: storageData, error: storageErr } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
+            if (!storageErr) {
+              const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+              fileUrl = publicUrlData.publicUrl;
+            }
+          } catch(err) {
+            console.warn("Storage upload err:", err);
+          }
+        }
         
-        if (storageErr) {
-          console.warn("Storage upload warn:", storageErr.message);
+        // Fallback Base64 jika storage Supabase belum siap
+        if (!fileUrl) {
           fileUrl = await readFileAsBase64(file);
-        } else {
-          const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-          fileUrl = publicUrlData.publicUrl;
         }
       }
 
@@ -179,21 +200,34 @@
         created_at: new Date().toISOString()
       };
 
-      try {
-        if (id) {
-          await supabase.from('academic_items').update(newItem).eq('id', id);
-        } else {
-          await supabase.from('academic_items').insert([newItem]);
+      // Simpan ke Supabase jika tersedia
+      if (supabase) {
+        try {
+          if (id) {
+            await supabase.from('academic_items').update(newItem).eq('id', id);
+          } else {
+            await supabase.from('academic_items').insert([newItem]);
+          }
+        } catch(err) {
+          console.warn("Db insert warn:", err);
         }
-        await fetchDataFromSupabase();
-        resetForm();
-        alert("Data berhasil disimpan ke Supabase!");
-      } catch (err) {
-        alert("Gagal menyimpan data: " + err.message);
-      } finally {
-        btnSubmit.disabled = false;
-        btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Simpan & Upload`;
       }
+
+      // Selalu simpan ke Penyimpanan Lokal (LocalStorage) agar pasti muncul
+      if (id) {
+        const idx = itemsData.findIndex(x => x.id == id);
+        if (idx !== -1) itemsData[idx] = newItem;
+      } else {
+        itemsData.unshift(newItem);
+      }
+
+      localStorage.setItem("academic_local_db", JSON.stringify(itemsData));
+      renderList();
+      resetForm();
+
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Simpan & Upload`;
+      alert("Tugas/Materi Berhasil Disimpan!");
     }
 
     function readFileAsBase64(file) {
@@ -261,8 +295,12 @@
 
     async function deleteItem(id) {
       if (!confirm("Yakin ingin menghapus data ini?")) return;
-      await supabase.from('academic_items').delete().eq('id', id);
-      await fetchDataFromSupabase();
+      if (supabase) {
+        try { await supabase.from('academic_items').delete().eq('id', id); } catch(e){}
+      }
+      itemsData = itemsData.filter(x => x.id != id);
+      localStorage.setItem("academic_local_db", JSON.stringify(itemsData));
+      renderList();
     }
 
     function resetForm() {
