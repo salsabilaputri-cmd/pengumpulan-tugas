@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Tugas & Materi - Salsabila Putri</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS Client -->
+  <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 font-sans pb-12">
 
-  <!-- NAVBAR & PROFILE HEADER -->
   <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-50">
     <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
       <div>
@@ -19,7 +18,7 @@
         <p class="text-xs text-indigo-200">Pengumpulan Tugas & Upload Materi Kuliah</p>
       </div>
       <span class="bg-emerald-600 text-xs px-3 py-1 rounded-full text-white font-semibold flex items-center gap-1">
-        <i class="fa-solid fa-circle-check"></i> Sistem Upload Aktif
+        <i class="fa-solid fa-circle-check"></i> Sistem Aktif
       </span>
     </div>
   </header>
@@ -51,7 +50,7 @@
       </div>
     </section>
 
-    <!-- FORM UPLOAD -->
+    <!-- FORM UPLOAD PERMANEN -->
     <section class="bg-white rounded-xl p-6 shadow-md border border-indigo-100">
       <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
         <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i>
@@ -92,26 +91,20 @@
 
     <!-- LIST DAFTAR TUGAS DAN MATERI -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- KOLOM TUGAS -->
       <section class="bg-white rounded-xl p-6 shadow-md border border-slate-100">
         <h2 class="text-base font-bold text-slate-800 mb-4 pb-2 border-b border-slate-200 flex justify-between items-center">
           <span><i class="fa-solid fa-tasks text-indigo-600 mr-2"></i>Daftar Tugas</span>
           <span id="countTugas" class="bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full">0</span>
         </h2>
-        <div id="listTugas" class="space-y-3">
-          <p class="text-xs text-slate-400 text-center py-4">Memuat data...</p>
-        </div>
+        <div id="listTugas" class="space-y-3"></div>
       </section>
 
-      <!-- KOLOM MATERI -->
       <section class="bg-white rounded-xl p-6 shadow-md border border-slate-100">
         <h2 class="text-base font-bold text-slate-800 mb-4 pb-2 border-b border-slate-200 flex justify-between items-center">
           <span><i class="fa-solid fa-book-open text-emerald-600 mr-2"></i>Daftar Materi Kuliah</span>
           <span id="countMateri" class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">0</span>
         </h2>
-        <div id="listMateri" class="space-y-3">
-          <p class="text-xs text-slate-400 text-center py-4">Memuat data...</p>
-        </div>
+        <div id="listMateri" class="space-y-3"></div>
       </section>
     </div>
 
@@ -127,31 +120,25 @@
       if (window.supabase) {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
-    } catch (e) {
-      console.warn("Supabase Init Error:", e);
-    }
+    } catch(e) {}
 
-    let itemsData = JSON.parse(localStorage.getItem("academic_local_db") || "[]");
+    let itemsData = JSON.parse(localStorage.getItem("academic_db_v2") || "[]");
 
     window.addEventListener("DOMContentLoaded", () => {
-      fetchData();
+      renderList();
+      fetchFromSupabase();
     });
 
-    async function fetchData() {
-      let fetched = false;
-      if (supabase) {
-        try {
-          const { data, error } = await supabase.from('academic_items').select('*').order('created_at', { ascending: false });
-          if (!error && data) {
-            itemsData = data;
-            localStorage.setItem("academic_local_db", JSON.stringify(itemsData));
-            fetched = true;
-          }
-        } catch (err) {
-          console.warn("Gagal konek Supabase, menggunakan penyimpanan lokal:", err);
+    async function fetchFromSupabase() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase.from('academic_items').select('*').order('created_at', { ascending: false });
+        if (!error && data) {
+          itemsData = data;
+          localStorage.setItem("academic_db_v2", JSON.stringify(itemsData));
+          renderList();
         }
-      }
-      renderList();
+      } catch (err) {}
     }
 
     async function handleFormSubmit(e) {
@@ -173,19 +160,15 @@
         fileName = file.name;
         if (supabase) {
           try {
-            const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
-            const filePath = `${category}/${Date.now()}_${cleanFileName}`;
-            const { data: storageData, error: storageErr } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
-            if (!storageErr) {
-              const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-              fileUrl = publicUrlData.publicUrl;
+            const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+            const filePath = `${category}/${Date.now()}_${cleanName}`;
+            const { data, error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
+            if (!error) {
+              const { data: pubData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+              fileUrl = pubData.publicUrl;
             }
-          } catch(err) {
-            console.warn("Storage upload err:", err);
-          }
+          } catch(err) {}
         }
-        
-        // Fallback Base64 jika storage Supabase belum siap
         if (!fileUrl) {
           fileUrl = await readFileAsBase64(file);
         }
@@ -200,7 +183,6 @@
         created_at: new Date().toISOString()
       };
 
-      // Simpan ke Supabase jika tersedia
       if (supabase) {
         try {
           if (id) {
@@ -208,12 +190,9 @@
           } else {
             await supabase.from('academic_items').insert([newItem]);
           }
-        } catch(err) {
-          console.warn("Db insert warn:", err);
-        }
+        } catch(err) {}
       }
 
-      // Selalu simpan ke Penyimpanan Lokal (LocalStorage) agar pasti muncul
       if (id) {
         const idx = itemsData.findIndex(x => x.id == id);
         if (idx !== -1) itemsData[idx] = newItem;
@@ -221,13 +200,13 @@
         itemsData.unshift(newItem);
       }
 
-      localStorage.setItem("academic_local_db", JSON.stringify(itemsData));
+      localStorage.setItem("academic_db_v2", JSON.stringify(itemsData));
       renderList();
       resetForm();
 
       btnSubmit.disabled = false;
       btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Simpan & Upload`;
-      alert("Tugas/Materi Berhasil Disimpan!");
+      alert("Tugas / Materi Berhasil Disimpan!");
     }
 
     function readFileAsBase64(file) {
@@ -248,8 +227,8 @@
       document.getElementById("countTugas").innerText = tugasArr.length;
       document.getElementById("countMateri").innerText = materiArr.length;
 
-      listTugas.innerHTML = tugasArr.length ? "" : `<p class="text-xs text-slate-400 italic py-2 text-center">Belum ada tugas.</p>`;
-      listMateri.innerHTML = materiArr.length ? "" : `<p class="text-xs text-slate-400 italic py-2 text-center">Belum ada materi.</p>`;
+      listTugas.innerHTML = tugasArr.length ? "" : `<p class="text-xs text-slate-400 italic py-2 text-center">Belum ada tugas disubmit.</p>`;
+      listMateri.innerHTML = materiArr.length ? "" : `<p class="text-xs text-slate-400 italic py-2 text-center">Belum ada materi disubmit.</p>`;
 
       tugasArr.forEach(item => listTugas.appendChild(createItemCard(item)));
       materiArr.forEach(item => listMateri.appendChild(createItemCard(item)));
@@ -299,7 +278,7 @@
         try { await supabase.from('academic_items').delete().eq('id', id); } catch(e){}
       }
       itemsData = itemsData.filter(x => x.id != id);
-      localStorage.setItem("academic_local_db", JSON.stringify(itemsData));
+      localStorage.setItem("academic_db_v2", JSON.stringify(itemsData));
       renderList();
     }
 
