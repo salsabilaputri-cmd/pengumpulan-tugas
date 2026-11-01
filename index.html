@@ -19,11 +19,11 @@
         <p class="text-xs text-indigo-200">Pengumpulan Tugas & Upload Materi Kuliah</p>
       </div>
       <div class="flex items-center gap-3">
-        <label class="flex items-center cursor-pointer bg-indigo-800 px-3 py-1.5 rounded-full text-xs hover:bg-indigo-900 transition">
-          <input type="checkbox" id="adminToggle" class="sr-only" onchange="toggleAdminMode()">
-          <i class="fa-solid fa-user-gear mr-2"></i>
+        <!-- TOMBOL ADMIN TERPERBAIKI (BISA DIKLIK) -->
+        <button type="button" id="adminBtn" onclick="toggleAdminMode()" class="bg-indigo-800 hover:bg-indigo-900 active:bg-indigo-950 text-white px-4 py-2 rounded-full text-xs font-semibold shadow flex items-center gap-2 transition-all cursor-pointer">
+          <i class="fa-solid fa-user-gear"></i>
           <span id="adminText">Mode Pengunjung</span>
-        </label>
+        </button>
       </div>
     </div>
   </header>
@@ -124,9 +124,6 @@
 
   <!-- JAVASCRIPT AUTOMATIC SUPABASE INTEGRATION -->
   <script>
-    // ==========================================
-    // API KEY & URL SUPABASE MILIK SALSABILA PUTRI
-    // ==========================================
     const SUPABASE_URL = "https://vrlkwwkemsfeuypvrvcr.supabase.co"; 
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZybGt3d2tlbXNmZXV5dnZydmNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDU1NjMsImV4cCI6MjEwOTEyMTU2M30.J6EPaVRZLVrccdY0AbPuQaDXYe-JDcla9g3fNHC87KM"; 
     const BUCKET_NAME = "uploads"; 
@@ -141,10 +138,24 @@
       fetchDataFromSupabase();
     });
 
+    // FUNGSI SWITCH MODE ADMIN (TERPERBAIKI)
     function toggleAdminMode() {
-      isAdmin = document.getElementById("adminToggle").checked;
-      document.getElementById("adminText").innerText = isAdmin ? "Mode Admin" : "Mode Pengunjung";
-      document.getElementById("adminFormSection").classList.toggle("hidden", !isAdmin);
+      isAdmin = !isAdmin;
+      const adminBtn = document.getElementById("adminBtn");
+      const adminText = document.getElementById("adminText");
+      const formSection = document.getElementById("adminFormSection");
+
+      if (isAdmin) {
+        adminText.innerText = "Mode Admin (Aktif)";
+        adminBtn.classList.replace("bg-indigo-800", "bg-emerald-600");
+        adminBtn.classList.replace("hover:bg-indigo-900", "hover:bg-emerald-700");
+        formSection.classList.remove("hidden");
+      } else {
+        adminText.innerText = "Mode Pengunjung";
+        adminBtn.classList.replace("bg-emerald-600", "bg-indigo-800");
+        adminBtn.classList.replace("hover:bg-emerald-700", "hover:bg-indigo-900");
+        formSection.classList.add("hidden");
+      }
       renderList();
     }
 
@@ -157,6 +168,7 @@
         renderList();
       } catch (err) {
         console.error("Gagal mengambil data dari Supabase:", err.message);
+        renderList();
       }
     }
 
@@ -174,13 +186,12 @@
 
       if (file) {
         fileName = file.name;
-        // Upload File ke Bucket 'uploads' di Supabase Storage
         const filePath = `${category}/${Date.now()}_${file.name}`;
         const { data: storageData, error: storageErr } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
         
         if (storageErr) {
           console.warn("Storage error / file fallback:", storageErr.message);
-          fileUrl = await readFileAsBase64(file); // Fallback jika bucket belum diset
+          fileUrl = await readFileAsBase64(file);
         } else {
           const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
           fileUrl = publicUrlData.publicUrl;
@@ -207,7 +218,6 @@
       alert("Data berhasil disimpan ke Supabase!");
     }
 
-    // Utility Base64
     function readFileAsBase64(file) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -262,7 +272,6 @@
       return card;
     }
 
-    // Edit Item
     function editItem(id) {
       const item = itemsData.find(x => x.id == id);
       if (!item) return;
@@ -277,14 +286,12 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Hapus Item
     async function deleteItem(id) {
       if (!confirm("Yakin ingin menghapus data ini?")) return;
       await supabase.from('academic_items').delete().eq('id', id);
       await fetchDataFromSupabase();
     }
 
-    // Reset Form
     function resetForm() {
       document.getElementById("uploadForm").reset();
       document.getElementById("editId").value = "";
