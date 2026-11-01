@@ -51,7 +51,7 @@
       </div>
     </section>
 
-    <!-- FORM UPLOAD (LANGSUNG TAMPIL PERMANEN TANPA MODE PENGUNJUNG) -->
+    <!-- FORM UPLOAD -->
     <section class="bg-white rounded-xl p-6 shadow-md border border-indigo-100">
       <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
         <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i>
@@ -119,7 +119,7 @@
 
   <script>
     const SUPABASE_URL = "https://vrlkwwkemsfeuypvrvcr.supabase.co"; 
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZybGt3d2tlbXNmZXV5dnZydmNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDU1NjMsImV4cCI6MjEwOTEyMTU2M30.J6EPaVRZLVrccdY0AbPuQaDXYe-JDcla9g3fNHC87KM"; 
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZybGt3d2tlbXNmZXV5cHZydmNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDU1NjMsImV4cCI6MjEwOTEyMTU2M30.J6EPaVRZLVrccdY0AbPuQaDXYe-JDcla9g3fNHC87KM"; 
     const BUCKET_NAME = "uploads"; 
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -143,6 +143,10 @@
 
     async function handleFormSubmit(e) {
       e.preventDefault();
+      const btnSubmit = document.getElementById("btnSubmit");
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
+
       const id = document.getElementById("editId").value;
       const category = document.getElementById("itemCategory").value;
       const title = document.getElementById("itemTitle").value;
@@ -158,6 +162,7 @@
         const { data: storageData, error: storageErr } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
         
         if (storageErr) {
+          console.warn("Storage upload warn:", storageErr.message);
           fileUrl = await readFileAsBase64(file);
         } else {
           const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
@@ -174,15 +179,21 @@
         created_at: new Date().toISOString()
       };
 
-      if (id) {
-        await supabase.from('academic_items').update(newItem).eq('id', id);
-      } else {
-        await supabase.from('academic_items').insert([newItem]);
+      try {
+        if (id) {
+          await supabase.from('academic_items').update(newItem).eq('id', id);
+        } else {
+          await supabase.from('academic_items').insert([newItem]);
+        }
+        await fetchDataFromSupabase();
+        resetForm();
+        alert("Data berhasil disimpan ke Supabase!");
+      } catch (err) {
+        alert("Gagal menyimpan data: " + err.message);
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Simpan & Upload`;
       }
-
-      await fetchDataFromSupabase();
-      resetForm();
-      alert("Data berhasil disimpan!");
     }
 
     function readFileAsBase64(file) {
